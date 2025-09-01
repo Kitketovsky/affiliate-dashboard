@@ -1,3 +1,12 @@
+'use client';
+
+import { Button } from '../components/ui/button';
+import { logout } from './lib/actions/logout';
+
 export default function Home() {
-	return <div></div>;
+	return (
+		<div>
+			<Button onClick={logout}>Log out</Button>
+		</div>
+	);
 }
