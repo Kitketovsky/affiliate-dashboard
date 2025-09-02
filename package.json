@@ -10,7 +10,7 @@
 		"prepare": "husky",
 		"supabase:start": "pnpm supabase start",
 		"supabase:reset": "pnpm supabase reset",
-		"drizzle:seed": "pnpm dlx vite-node ./lib/drizzle/seed.ts"
+		"drizzle:seed": "pnpm dlx vite-node ./app/lib/drizzle/seed.ts"
 	},
 	"lint-staged": {
 		"**/*": "prettier --write --ignore-unknown"
@@ -24,6 +24,7 @@
 		"clsx": "^2.1.1",
 		"dotenv": "^17.2.1",
 		"drizzle-orm": "^0.44.5",
+		"drizzle-seed": "^0.3.1",
 		"envalid": "^8.1.0",
 		"lucide-react": "^0.542.0",
 		"next": "15.5.2",

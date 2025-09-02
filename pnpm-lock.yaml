@@ -31,6 +31,9 @@ importers:
       drizzle-orm:
         specifier: ^0.44.5
         version: 0.44.5(postgres@3.4.7)
+      drizzle-seed:
+        specifier: ^0.3.1
+        version: 0.3.1(drizzle-orm@0.44.5(postgres@3.4.7))
       envalid:
         specifier: ^8.1.0
         version: 8.1.0
@@ -1820,6 +1823,17 @@ packages:
       sqlite3:
         optional: true
 
+  drizzle-seed@0.3.1:
+    resolution:
+      {
+        integrity: sha512-F/0lgvfOAsqlYoHM/QAGut4xXIOXoE5VoAdv2FIl7DpGYVXlAzKuJO+IphkKUFK3Dz+rFlOsQLnMNrvoQ0cx7g==
+      }
+    peerDependencies:
+      drizzle-orm: '>=0.36.4'
+    peerDependenciesMeta:
+      drizzle-orm:
+        optional: true
+
   emoji-regex@10.5.0:
     resolution:
       {
@@ -2644,6 +2658,12 @@ packages:
         integrity: sha512-Azwzvl90HaF0aCz1JrDdXQykFakSSNPaPoiZ9fm5qJIMHioDZEi7OAdRwSm6rSoPtY3Qutnm3L7ogmg3dc+wbQ==
       }
     engines: { node: ^18.17.0 || >=20.5.0 }
+
+  pure-rand@6.1.0:
+    resolution:
+      {
+        integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==
+      }
 
   react-dom@19.1.0:
     resolution:
@@ -3988,6 +4008,12 @@ snapshots:
     optionalDependencies:
       postgres: 3.4.7
 
+  drizzle-seed@0.3.1(drizzle-orm@0.44.5(postgres@3.4.7)):
+    dependencies:
+      pure-rand: 6.1.0
+    optionalDependencies:
+      drizzle-orm: 0.44.5(postgres@3.4.7)
+
   emoji-regex@10.5.0: {}
 
   emoji-regex@8.0.0: {}
@@ -4454,6 +4480,8 @@ snapshots:
   prettier@3.6.2: {}
 
   proc-log@5.0.0: {}
+
+  pure-rand@6.1.0: {}
 
   react-dom@19.1.0(react@19.1.0):
     dependencies:
