@@ -13,7 +13,7 @@ import {
 	FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { login } from '@/app/lib/actions/login';
+import { login } from '@/app/lib/actions/auth/login';
 import { useState } from 'react';
 
 export const LoginSchema = z.object({

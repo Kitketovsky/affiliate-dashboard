@@ -2,15 +2,13 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/app/lib/supabase/server';
-import { LoginSchema } from '../../login/page';
+import { LoginSchema } from '@/app/login/page';
+import z from 'zod';
 
 export async function login({
 	email,
 	password
-}: {
-	email: string;
-	password: string;
-}) {
+}: z.infer<typeof LoginSchema>) {
 	const supabase = await createClient();
 
 	const { error } = await supabase.auth.signInWithPassword({
@@ -22,5 +20,5 @@ export async function login({
 		throw new Error(error.message);
 	}
 
-	redirect('/');
+	redirect('/main');
 }
