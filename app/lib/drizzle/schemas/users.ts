@@ -6,6 +6,9 @@ import {
 	varchar
 } from 'drizzle-orm/pg-core';
 import { authUsers, authenticatedRole } from 'drizzle-orm/supabase';
+import { createSelectSchema } from 'drizzle-zod';
+import z from 'zod';
+import { zRolesEnum } from './roles';
 
 export const users = pgTable(
 	'users',
@@ -43,3 +46,11 @@ export const users = pgTable(
 		})
 	]
 );
+
+const zUsers = createSelectSchema(users);
+const zUsersData = createSelectSchema(users).extend({
+	role: zRolesEnum.or(z.null())
+});
+
+export type UsersSelect = z.infer<typeof zUsers>;
+export type UsersData = z.infer<typeof zUsersData>;

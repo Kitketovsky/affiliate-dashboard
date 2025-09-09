@@ -2,7 +2,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { env } from './../../../envalid';
 import { db } from '.';
 import { role_permissions } from './schemas/permissions';
-import { user_roles } from './schemas/roles';
+import { roles, user_roles } from './schemas/roles';
 
 async function seedSupabaseUsers() {
 	const supabase = createBrowserClient(
@@ -38,6 +38,15 @@ async function seedSupabaseUsers() {
 	if (error) {
 		throw new Error(error.message);
 	}
+
+	await db
+		.insert(roles)
+		.values([
+			{ role: 'admin' },
+			{ role: 'buyer' },
+			{ role: 'developer' }
+		])
+		.onConflictDoNothing();
 
 	await db
 		.insert(user_roles)
