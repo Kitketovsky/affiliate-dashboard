@@ -1,0 +1,5 @@
+# TODO:
+# check how to provide .env variables
+# start redis (docker run --name dashboard-redis -d redis -p 6379:6379)
+# start supabase (pnpm supabase start)
+# start next js project (write Dockerfile for Next.js project as build) (node AS base)
