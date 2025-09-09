@@ -1,7 +1,15 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-	/* config options here */
+	async rewrites() {
+		// !FIXME: does not redirect
+		return [
+			{
+				source: '/',
+				destination: '/main'
+			}
+		];
+	}
 };
 
 export default nextConfig;

@@ -7,8 +7,9 @@ import { logout } from '../app/lib/actions/auth/logout';
 import { Button } from './ui/button';
 
 const LINKS = [
-	{ href: '/main', lable: 'Home' },
-	{ href: '/main/users', lable: 'Users' }
+	{ href: '/main', label: 'Home' },
+	{ href: '/main/users', label: 'Users' },
+	{ href: '/api/bull', label: 'BullMQ', target: '_blank' }
 ];
 
 export function Header() {
@@ -17,12 +18,14 @@ export function Header() {
 	return (
 		<header className='flex items-center justify-between py-6'>
 			<nav className='flex items-center gap-4'>
-				{LINKS.map(({ href, lable }) => (
+				{LINKS.map(({ href, label, ...rest }) => (
 					<Link
 						className={cn({ 'font-semibold': pathname === href })}
 						href={href}
+						key={label}
+						{...rest}
 					>
-						{lable}
+						{label}
 					</Link>
 				))}
 			</nav>
