@@ -6,26 +6,8 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import express from 'express';
 import { type NextApiRequest, type NextApiResponse } from 'next';
-import IORedis from 'ioredis';
-import { Queue, Worker } from 'bullmq';
-
-const connection = new IORedis({
-	host: '127.0.0.1',
-	port: 6379,
-	maxRetriesPerRequest: null
-});
-
-const CAMPAIGNS_QUEUE_NAME = 'campaigns_queue';
-
-const campaigns_queue = new Queue(CAMPAIGNS_QUEUE_NAME);
-
-export const campaigns_worker = new Worker(
-	CAMPAIGNS_QUEUE_NAME,
-	async (job) => {
-		console.log('Received:', job.name, job.data);
-	},
-	{ connection }
-);
+import { campaigns_queue } from '../../../app/lib/bullmq/campaigns';
+import { campaigns_steps_queue } from '../../../app/lib/bullmq/campaign_steps';
 
 const app = express();
 const basePath = '/api/bull';
@@ -36,6 +18,10 @@ serverAdapter.setBasePath(basePath);
 createBullBoard({
 	queues: [
 		new BullMQAdapter(campaigns_queue, {
+			readOnlyMode: false,
+			allowRetries: true
+		}),
+		new BullMQAdapter(campaigns_steps_queue, {
 			readOnlyMode: false,
 			allowRetries: true
 		})

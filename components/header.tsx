@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 const LINKS = [
 	{ href: '/main', label: 'Home' },
 	{ href: '/main/users', label: 'Users' },
+	{ href: '/main/campaigns', label: 'Campaigns' },
 	{ href: '/api/bull', label: 'BullMQ', target: '_blank' }
 ];
 
