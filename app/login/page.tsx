@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { login } from '@/app/lib/actions/auth/login';
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
 
 export const LoginSchema = z.object({
 	email: z.email(),
@@ -43,6 +43,7 @@ export default function Login() {
 		} catch (error) {
 			const tError = error as { message: string };
 			setError(tError.message);
+		} finally {
 			setLoading(false);
 		}
 	}
@@ -50,7 +51,12 @@ export default function Login() {
 	return (
 		<Form {...form}>
 			<form
-				onSubmit={handleSubmit(onSubmit)}
+				onSubmit={(event) => {
+					// Without startTransition function, login redirect return NEXT_REDIRECT error
+					// and procedes to redirecting, resulting to flashing error for milliseconds
+					// https://github.com/vercel/next.js/issues/49298#issuecomment-1545945138
+					startTransition(() => handleSubmit(onSubmit)(event));
+				}}
 				className='space-y-8 max-w-xs w-full'
 			>
 				<FormField
