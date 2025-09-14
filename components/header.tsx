@@ -1,31 +1,48 @@
-'use client';
-
 import Link from 'next/link';
-import { cn } from '../lib/utils';
-import { usePathname } from 'next/navigation';
 import { logout } from '../app/lib/actions/auth/logout';
 import { Button } from './ui/button';
+import { HTMLAttributeAnchorTarget } from 'react';
+import {
+	PermissionAction,
+	PermissionResource
+} from '../app/lib/drizzle/schemas/permissions';
 
-const LINKS = [
+type Links = Array<{
+	href: string;
+	label: string;
+	target?: HTMLAttributeAnchorTarget;
+	resource?: PermissionResource;
+	action?: PermissionAction;
+}>;
+
+const LINKS: Links = [
 	{ href: '/main', label: 'Home' },
-	{ href: '/main/users', label: 'Users' },
-	{ href: '/main/campaigns', label: 'Campaigns' },
-	{ href: '/api/bull', label: 'BullMQ', target: '_blank' }
+	{
+		href: '/main/users',
+		label: 'Users',
+		resource: 'users',
+		action: 'read'
+	},
+	{
+		href: '/main/campaigns',
+		label: 'Campaigns',
+		resource: 'campaigns'
+	},
+	{
+		href: '/api/bull',
+		label: 'Queues',
+		target: '_blank',
+		resource: 'queues',
+		action: 'read'
+	}
 ];
 
 export function Header() {
-	const pathname = usePathname();
-
 	return (
 		<header className='flex items-center justify-between py-6'>
 			<nav className='flex items-center gap-4'>
-				{LINKS.map(({ href, label, ...rest }) => (
-					<Link
-						className={cn({ 'font-semibold': pathname === href })}
-						href={href}
-						key={label}
-						{...rest}
-					>
+				{LINKS.map(({ href, label, resource, action, ...rest }) => (
+					<Link href={href} key={label} {...rest}>
 						{label}
 					</Link>
 				))}
