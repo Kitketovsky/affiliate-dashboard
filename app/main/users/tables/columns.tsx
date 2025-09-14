@@ -1,6 +1,5 @@
 'use client';
 
-import { UsersData } from '@/app/lib/drizzle/schemas/users';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,9 +14,10 @@ import { MoreHorizontal } from 'lucide-react';
 import { DeleteUser } from '../forms/delete-user';
 import { ChangeRole } from '../forms/change-role';
 import { RolesSelect } from '../../../lib/drizzle/schemas/roles';
+import { type UsersData } from '../page';
 
 export function createColumns({ roles }: { roles: RolesSelect[] }) {
-	const columns: ColumnDef<UsersData>[] = [
+	const columns: ColumnDef<UsersData[number]>[] = [
 		{
 			accessorKey: 'email',
 			header: 'Email'
@@ -27,7 +27,9 @@ export function createColumns({ roles }: { roles: RolesSelect[] }) {
 			header: 'Role',
 			cell: ({ row }) => {
 				return (
-					<span className='capitalize'>{row.original.role}</span>
+					<span className='capitalize'>
+						{row.original.role?.role}
+					</span>
 				);
 			}
 		},
@@ -52,7 +54,7 @@ export function createColumns({ roles }: { roles: RolesSelect[] }) {
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild>
 								<ChangeRole
-									id={user.id}
+									userId={user.id}
 									email={user.email}
 									userRole={row.original.role}
 									roles={roles}

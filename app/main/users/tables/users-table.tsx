@@ -1,13 +1,13 @@
 'use client';
 
 import { RolesSelect } from '../../../lib/drizzle/schemas/roles';
-import { UsersData } from '../../../lib/drizzle/schemas/users';
 import { createColumns } from './columns';
 import { DataTable } from './data-table';
 import { CreateUser } from '../forms/invite-user';
+import { type UsersData } from '../page';
 
 interface Props {
-	data: UsersData[];
+	data: UsersData;
 	roles: RolesSelect[];
 }
 
