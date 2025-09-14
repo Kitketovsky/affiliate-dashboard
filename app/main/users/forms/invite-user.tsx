@@ -31,13 +31,13 @@ import z from 'zod';
 import { Input } from '../../../../components/ui/input';
 import {
 	RolesSelect,
-	zRolesEnum
+	zRoles
 } from '../../../lib/drizzle/schemas/roles';
 import { inviteUser } from '../actions/invite-user';
 
 export const CreateUserSchema = z.object({
 	email: z.email(),
-	role: zRolesEnum
+	role_id: zRoles.shape.id
 });
 
 export function CreateUser({ roles }: { roles: RolesSelect[] }) {
@@ -48,13 +48,13 @@ export function CreateUser({ roles }: { roles: RolesSelect[] }) {
 
 	async function onSubmit({
 		email,
-		role
+		role_id
 	}: z.infer<typeof CreateUserSchema>) {
 		try {
 			setError(null);
 			setLoading(true);
 
-			await inviteUser({ email, role });
+			await inviteUser({ email, role_id });
 
 			setOpen(false);
 		} catch (error) {
@@ -68,7 +68,7 @@ export function CreateUser({ roles }: { roles: RolesSelect[] }) {
 		resolver: zodResolver(CreateUserSchema),
 		defaultValues: {
 			email: '',
-			role: 'buyer'
+			role_id: roles[0].id
 		}
 	});
 
@@ -94,7 +94,7 @@ export function CreateUser({ roles }: { roles: RolesSelect[] }) {
 
 						<FormField
 							control={form.control}
-							name='role'
+							name='role_id'
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Role</FormLabel>
@@ -109,7 +109,7 @@ export function CreateUser({ roles }: { roles: RolesSelect[] }) {
 											<SelectContent>
 												{roles.map(({ role, id }) => (
 													<SelectItem
-														value={role}
+														value={id}
 														className='capitalize'
 														key={id}
 													>

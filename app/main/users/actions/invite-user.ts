@@ -1,15 +1,19 @@
 'use server';
 
 import { db } from '../../../lib/drizzle';
-import { Role, user_roles } from '../../../lib/drizzle/schemas/roles';
+import {
+	Role,
+	user_roles,
+	UserRolesSelect
+} from '../../../lib/drizzle/schemas/roles';
 import { createClient } from '../../../lib/supabase/server';
 
 export async function inviteUser({
 	email,
-	role
+	role_id
 }: {
 	email: string;
-	role: Role;
+	role_id: UserRolesSelect['role_id'];
 }) {
 	const supabase = await createClient(true);
 
@@ -22,5 +26,7 @@ export async function inviteUser({
 
 	if (error) throw new Error(error.message);
 
-	await db.insert(user_roles).values({ role, user_id: data.user.id });
+	await db
+		.insert(user_roles)
+		.values({ role_id, user_id: data.user.id });
 }
