@@ -2,20 +2,19 @@
 
 import { db } from '../../../lib/drizzle';
 import {
-	RolesSelect,
-	user_roles
+	user_roles,
+	UserRolesSelect
 } from '../../../lib/drizzle/schemas/roles';
-import { UsersSelect } from '../../../lib/drizzle/schemas/users';
 
 export async function changeRole({
 	user_id,
-	role
+	role_id
 }: {
-	user_id: UsersSelect['id'];
-	role: RolesSelect['role'];
+	user_id: UserRolesSelect['user_id'];
+	role_id: UserRolesSelect['role_id'];
 }) {
 	try {
-		await db.insert(user_roles).values({ user_id, role });
+		await db.insert(user_roles).values({ user_id, role_id });
 	} catch (error) {
 		throw error;
 	}

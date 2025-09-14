@@ -26,47 +26,48 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/components/ui/select';
-import {
-	UsersData,
-	UsersSelect
-} from '../../../lib/drizzle/schemas/users';
 import { useState } from 'react';
 import {
-	appRolesEnum,
 	RolesSelect,
-	UserRolesSelect
+	UserRolesSelect,
+	zRoles
 } from '../../../lib/drizzle/schemas/roles';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createSelectSchema } from 'drizzle-zod';
 import { changeRole } from '../actions/change-role';
+import { UsersData } from '../page';
 
-interface Props extends UsersSelect {
+interface Props {
+	userId: string;
+	email: string;
 	roles: RolesSelect[];
-	userRole: UsersData['role'];
+	userRole: UsersData[number]['role'];
 }
 
-export const ChangeRoleSchema = z.object({
-	role: createSelectSchema(appRolesEnum)
-});
+export const ChangeRoleSchema = zRoles.pick({ id: true });
 
-export function ChangeRole({ id, email, roles, userRole }: Props) {
+export function ChangeRole({
+	userId,
+	email,
+	roles,
+	userRole
+}: Props) {
 	const [open, setOpen] = useState(false);
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	async function onSubmit({
-		role
+		id
 	}: {
-		role: UserRolesSelect['role'];
+		id: UserRolesSelect['role_id'];
 	}) {
 		try {
 			setError(null);
 			setLoading(true);
 
-			await changeRole({ user_id: id, role });
+			await changeRole({ user_id: userId, role_id: id });
 
 			setOpen(false);
 		} catch (error) {
@@ -79,7 +80,7 @@ export function ChangeRole({ id, email, roles, userRole }: Props) {
 	const form = useForm<z.infer<typeof ChangeRoleSchema>>({
 		resolver: zodResolver(ChangeRoleSchema),
 		defaultValues: {
-			role: roles.find(({ role }) => role !== userRole)!.role
+			id: roles.find(({ id }) => id !== userRole?.id)?.id
 		}
 	});
 
@@ -106,7 +107,7 @@ export function ChangeRole({ id, email, roles, userRole }: Props) {
 						</DialogHeader>
 						<FormField
 							control={form.control}
-							name='role'
+							name='id'
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Role</FormLabel>
@@ -121,10 +122,10 @@ export function ChangeRole({ id, email, roles, userRole }: Props) {
 											<SelectContent>
 												{roles.map(({ role, id }) => (
 													<SelectItem
-														value={role}
+														value={id}
 														className='capitalize'
 														key={id}
-														disabled={role === userRole}
+														disabled={id === userRole?.id}
 													>
 														{role}
 													</SelectItem>
