@@ -4,10 +4,13 @@ import { env } from './../../../envalid';
 import { db } from '../drizzle';
 import { sql, eq } from 'drizzle-orm';
 import {
-	appPermissionEnum,
+	PermissionAction,
+	PermissionResource,
+	permissions as permissions_table,
 	role_permissions
 } from '../drizzle/schemas/permissions';
-import { user_roles } from '../drizzle/schemas/roles';
+import { user_roles, roles } from '../drizzle/schemas/roles';
+import { users } from '../drizzle/schemas/users';
 
 export async function createClient(isAdmin = false) {
 	const cookieStore = await cookies();
@@ -37,39 +40,54 @@ export async function createClient(isAdmin = false) {
 	);
 }
 
-export async function getUserRoleAndPermissions() {
+export async function hasAuthority(
+	resource: PermissionResource,
+	action: PermissionAction
+) {
 	const supabase = await createClient();
 
 	const { data, error } = await supabase.auth.getUser();
 
-	if (error) throw error;
-
-	const [{ role, permissions }] = await db
-		.select({
-			role: user_roles.role,
-			permissions: sql<
-				string[]
-			>`array_agg(${role_permissions.permission})`
-		})
-		.from(user_roles)
-		.leftJoin(
-			role_permissions,
-			eq(user_roles.role, role_permissions.role)
-		)
-		.where(eq(user_roles.user_id, data.user.id))
-		.groupBy(user_roles.role);
-
-	function hasPermission(
-		permission: (typeof appPermissionEnum.enumValues)[number]
-	) {
-		return permission in permissions;
+	if (error) {
+		return false;
 	}
 
-	return {
-		role,
-		permissions: permissions as Array<
-			(typeof appPermissionEnum.enumValues)[number]
-		>,
-		hasPermission
-	};
+	const [{ permissions }] = await db
+		.select({
+			permissions: sql<
+				Array<{
+					action: PermissionAction;
+					resource: PermissionResource;
+				}>
+			>`
+      coalesce(
+        array_agg(
+          jsonb_build_object(
+            'action', ${permissions_table}.action,
+            'resource', ${permissions_table}.resource
+          )
+        ) filter (where ${permissions_table}.id is not null),
+        array[]::jsonb[]
+      )
+    `
+		})
+		.from(users)
+		.leftJoin(user_roles, eq(users.id, user_roles.user_id))
+		.leftJoin(roles, eq(user_roles.role_id, roles.id))
+		.leftJoin(
+			role_permissions,
+			eq(roles.id, role_permissions.role_id)
+		)
+		.leftJoin(
+			permissions_table,
+			eq(role_permissions.permission_id, permissions_table.id)
+		)
+		.where(eq(users.id, data.user.id));
+
+	const isAuthorized = permissions.find(
+		(permission) =>
+			permission.resource === resource && permission.action === action
+	);
+
+	return Boolean(isAuthorized);
 }
