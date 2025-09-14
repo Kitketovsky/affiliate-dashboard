@@ -1,14 +1,7 @@
-import { sql } from 'drizzle-orm';
-import {
-	pgTable,
-	pgPolicy,
-	integer,
-	uuid,
-	pgEnum
-} from 'drizzle-orm/pg-core';
-import { authUsers, authenticatedRole } from 'drizzle-orm/supabase';
+import { pgTable, uuid, pgEnum } from 'drizzle-orm/pg-core';
 import { createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
+import { users } from './users';
 
 export const appRolesEnum = pgEnum('app_role', [
 	'admin',
@@ -16,78 +9,20 @@ export const appRolesEnum = pgEnum('app_role', [
 	'buyer'
 ]);
 
-export const roles = pgTable(
-	'roles',
-	{
-		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		role: appRolesEnum().notNull().unique()
-	},
-	(t) => [
-		pgPolicy('roles users:read', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'select',
-			using: sql`(select authorize('users:read'))`
-		}),
-		pgPolicy('roles users:create', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'insert',
-			withCheck: sql`(select authorize('users:create'))`
-		}),
-		pgPolicy('roles users:update', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'update',
-			using: sql`(select authorize('users:update'))`,
-			withCheck: sql`(select authorize('users:update'))`
-		}),
-		pgPolicy('roles users:delete', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'delete',
-			using: sql`(select authorize('users:delete'))`
-		})
-	]
-);
+export const roles = pgTable('roles', {
+	id: uuid().primaryKey().defaultRandom(),
+	role: appRolesEnum().notNull().unique()
+});
 
-export const user_roles = pgTable(
-	'user_roles',
-	{
-		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		user_id: uuid()
-			.references(() => authUsers.id, { onDelete: 'cascade' })
-			.notNull(),
-		role: appRolesEnum().notNull()
-	},
-	(t) => [
-		pgPolicy('user_roles users:read', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'select',
-			using: sql`(select authorize('users:read'))`
-		}),
-		pgPolicy('user_roles users:create', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'insert',
-			withCheck: sql`(select authorize('users:create'))`
-		}),
-		pgPolicy('user_roles users:update', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'update',
-			using: sql`(select authorize('users:update'))`,
-			withCheck: sql`(select authorize('users:update'))`
-		}),
-		pgPolicy('user_roles users:delete', {
-			as: 'permissive',
-			to: authenticatedRole,
-			for: 'delete',
-			using: sql`(select authorize('users:delete'))`
-		})
-	]
-);
+export const user_roles = pgTable('user_roles', {
+	id: uuid().primaryKey().defaultRandom(),
+	user_id: uuid()
+		.references(() => users.id, { onDelete: 'cascade' })
+		.notNull(),
+	role_id: uuid()
+		.references(() => roles.id, { onDelete: 'cascade' })
+		.notNull()
+});
 
 export const zUserRoles = createSelectSchema(user_roles);
 export const zRolesEnum = createSelectSchema(appRolesEnum);

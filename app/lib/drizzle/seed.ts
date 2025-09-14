@@ -1,7 +1,12 @@
 import { createBrowserClient } from '@supabase/ssr';
 import { env } from './../../../envalid';
 import { db } from '.';
-import { role_permissions } from './schemas/permissions';
+import {
+	permissions,
+	permissionsActionsEnum,
+	permissionsResourceEnum,
+	role_permissions
+} from './schemas/permissions';
 import { roles, user_roles } from './schemas/roles';
 
 async function seedSupabaseUsers() {
@@ -39,29 +44,45 @@ async function seedSupabaseUsers() {
 		throw new Error(error.message);
 	}
 
-	await db
+	const rolesData = await db
 		.insert(roles)
 		.values([
 			{ role: 'admin' },
-			{ role: 'buyer' },
-			{ role: 'developer' }
+			{ role: 'developer' },
+			{ role: 'buyer' }
 		])
-		.onConflictDoNothing();
+		.returning();
 
-	await db
-		.insert(user_roles)
-		.values({ user_id: adminUserData.user.id, role: 'admin' })
-		.onConflictDoNothing();
+	const adminRole = rolesData.find(({ role }) => role === 'admin')!;
 
-	await db
-		.insert(role_permissions)
-		.values([
-			{ role: 'admin', permission: 'users:create' },
-			{ role: 'admin', permission: 'users:read' },
-			{ role: 'admin', permission: 'users:update' },
-			{ role: 'admin', permission: 'users:delete' }
-		])
-		.onConflictDoNothing();
+	await db.insert(user_roles).values({
+		user_id: adminUserData.user.id,
+		role_id: adminRole.id
+	});
+
+	const adminPermissions = await db
+		.insert(permissions)
+		.values(createAdminPermissions())
+		.returning();
+
+	await db.insert(role_permissions).values(
+		adminPermissions.map(({ id }) => ({
+			role_id: adminRole.id,
+			permission_id: id
+		}))
+	);
+}
+
+function createAdminPermissions() {
+	const result = [];
+
+	for (const resource of permissionsResourceEnum.enumValues) {
+		for (const action of permissionsActionsEnum.enumValues) {
+			result.push({ resource, action });
+		}
+	}
+
+	return result;
 }
 
 seedSupabaseUsers()
