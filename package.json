@@ -9,9 +9,12 @@
 		"start": "next start",
 		"commit": "commit",
 		"prepare": "husky",
-		"supabase:start": "pnpm supabase start",
-		"supabase:reset": "pnpm supabase reset",
-		"drizzle:seed": "pnpm dlx vite-node ./app/lib/drizzle/seed.ts"
+		"sb:start": "pnpm supabase start",
+		"sb:reset": "pnpm supabase reset",
+		"sb:stop": "pnpm supabase stop --no-backup",
+		"drzl:seed": "pnpm dlx vite-node ./app/lib/drizzle/seed.ts",
+		"drzl:gen": "pnpm drizzle-kit generate",
+		"drzl:migrate": "pnpm drizzle-kit migrate"
 	},
 	"lint-staged": {
 		"**/*": "prettier --write --ignore-unknown"
