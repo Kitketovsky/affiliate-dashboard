@@ -1,40 +1,30 @@
 {
-	"id": "bc56fe2e-43cc-43f2-9c2f-11223b8da974",
-	"prevId": "1fa0cc82-0be1-4f4d-8c55-979f22e454c1",
+	"id": "39be09f5-af2b-4369-9e0d-fc597077d92f",
+	"prevId": "cb7c9879-8aa7-4c05-8ca9-38d1964b9c0c",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
-		"public.role_permissions": {
-			"name": "role_permissions",
+		"public.permissions": {
+			"name": "permissions",
 			"schema": "",
 			"columns": {
 				"id": {
 					"name": "id",
-					"type": "integer",
+					"type": "uuid",
 					"primaryKey": true,
 					"notNull": true,
-					"identity": {
-						"name": "role_permissions_id_seq",
-						"increment": "1",
-						"minValue": "1",
-						"maxValue": "2147483647",
-						"startWith": "1",
-						"cache": "1",
-						"cycle": false,
-						"schema": "public",
-						"type": "always"
-					}
+					"default": "gen_random_uuid()"
 				},
-				"role": {
-					"name": "role",
-					"type": "app_role",
+				"resource": {
+					"name": "resource",
+					"type": "permissions_resource",
 					"typeSchema": "public",
 					"primaryKey": false,
 					"notNull": true
 				},
-				"permission": {
-					"name": "permission",
-					"type": "app_permission",
+				"action": {
+					"name": "action",
+					"type": "permissions_action",
 					"typeSchema": "public",
 					"primaryKey": false,
 					"notNull": true
@@ -44,14 +34,99 @@
 			"foreignKeys": {},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
-				"role_permissions_role_unique": {
-					"name": "role_permissions_role_unique",
-					"columns": ["role"],
+				"permissions_resource_action_unique": {
+					"name": "permissions_resource_action_unique",
+					"columns": ["resource", "action"],
 					"nullsNotDistinct": false
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.role_permissions": {
+			"name": "role_permissions",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
 				},
-				"role_permissions_role_permission_unique": {
-					"name": "role_permissions_role_permission_unique",
-					"columns": ["role", "permission"],
+				"role_id": {
+					"name": "role_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"permission_id": {
+					"name": "permission_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"role_permissions_role_id_roles_id_fk": {
+					"name": "role_permissions_role_id_roles_id_fk",
+					"tableFrom": "role_permissions",
+					"columnsFrom": ["role_id"],
+					"tableTo": "roles",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "cascade"
+				},
+				"role_permissions_permission_id_permissions_id_fk": {
+					"name": "role_permissions_permission_id_permissions_id_fk",
+					"tableFrom": "role_permissions",
+					"columnsFrom": ["permission_id"],
+					"tableTo": "permissions",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"role_permissions_role_id_permission_id_unique": {
+					"name": "role_permissions_role_id_permission_id_unique",
+					"columns": ["role_id", "permission_id"],
+					"nullsNotDistinct": false
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.roles": {
+			"name": "roles",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"role": {
+					"name": "role",
+					"type": "app_role",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"roles_role_unique": {
+					"name": "roles_role_unique",
+					"columns": ["role"],
 					"nullsNotDistinct": false
 				}
 			},
@@ -65,20 +140,10 @@
 			"columns": {
 				"id": {
 					"name": "id",
-					"type": "integer",
+					"type": "uuid",
 					"primaryKey": true,
 					"notNull": true,
-					"identity": {
-						"name": "user_roles_id_seq",
-						"increment": "1",
-						"minValue": "1",
-						"maxValue": "2147483647",
-						"startWith": "1",
-						"cache": "1",
-						"cycle": false,
-						"schema": "public",
-						"type": "always"
-					}
+					"default": "gen_random_uuid()"
 				},
 				"user_id": {
 					"name": "user_id",
@@ -86,10 +151,9 @@
 					"primaryKey": false,
 					"notNull": true
 				},
-				"role": {
-					"name": "role",
-					"type": "app_role",
-					"typeSchema": "public",
+				"role_id": {
+					"name": "role_id",
+					"type": "uuid",
 					"primaryKey": false,
 					"notNull": true
 				}
@@ -101,7 +165,15 @@
 					"tableFrom": "user_roles",
 					"columnsFrom": ["user_id"],
 					"tableTo": "users",
-					"schemaTo": "auth",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "cascade"
+				},
+				"user_roles_role_id_roles_id_fk": {
+					"name": "user_roles_role_id_roles_id_fk",
+					"tableFrom": "user_roles",
+					"columnsFrom": ["role_id"],
+					"tableTo": "roles",
 					"columnsTo": ["id"],
 					"onUpdate": "no action",
 					"onDelete": "cascade"
@@ -109,37 +181,7 @@
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
-			"policies": {
-				"user_roles users:read": {
-					"name": "user_roles users:read",
-					"as": "PERMISSIVE",
-					"for": "SELECT",
-					"to": ["authenticated"],
-					"using": "(select authorize('users:read'))"
-				},
-				"user_roles users:create": {
-					"name": "user_roles users:create",
-					"as": "PERMISSIVE",
-					"for": "INSERT",
-					"to": ["authenticated"],
-					"withCheck": "(select authorize('users:create'))"
-				},
-				"user_roles users:update": {
-					"name": "user_roles users:update",
-					"as": "PERMISSIVE",
-					"for": "UPDATE",
-					"to": ["authenticated"],
-					"using": "(select authorize('users:update'))",
-					"withCheck": "(select authorize('users:update'))"
-				},
-				"user_roles users:delete": {
-					"name": "user_roles users:delete",
-					"as": "PERMISSIVE",
-					"for": "DELETE",
-					"to": ["authenticated"],
-					"using": "select(authorize('users:delete'))"
-				}
-			},
+			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
@@ -181,51 +223,21 @@
 					"nullsNotDistinct": false
 				}
 			},
-			"policies": {
-				"users:read": {
-					"name": "users:read",
-					"as": "PERMISSIVE",
-					"for": "SELECT",
-					"to": ["authenticated"],
-					"using": "(select authorize('users:read'))"
-				},
-				"users:create": {
-					"name": "users:create",
-					"as": "PERMISSIVE",
-					"for": "INSERT",
-					"to": ["authenticated"],
-					"withCheck": "(select authorize('users:create'))"
-				},
-				"users:update": {
-					"name": "users:update",
-					"as": "PERMISSIVE",
-					"for": "UPDATE",
-					"to": ["authenticated"],
-					"using": "(select authorize('users:update'))",
-					"withCheck": "(select authorize('users:update'))"
-				},
-				"users:delete": {
-					"name": "users:delete",
-					"as": "PERMISSIVE",
-					"for": "DELETE",
-					"to": ["authenticated"],
-					"using": "select(authorize('users:delete'))"
-				}
-			},
+			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		}
 	},
 	"enums": {
-		"public.app_permission": {
-			"name": "app_permission",
+		"public.permissions_action": {
+			"name": "permissions_action",
 			"schema": "public",
-			"values": [
-				"users:create",
-				"users:read",
-				"users:update",
-				"users:delete"
-			]
+			"values": ["create", "read", "update", "delete"]
+		},
+		"public.permissions_resource": {
+			"name": "permissions_resource",
+			"schema": "public",
+			"values": ["users", "roles", "campaigns", "queues"]
 		},
 		"public.app_role": {
 			"name": "app_role",

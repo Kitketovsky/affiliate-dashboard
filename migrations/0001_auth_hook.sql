@@ -1,5 +1,6 @@
--- Custom SQL migration file, put your code below! --
--- Custom SQL migration file, put your code below! --
+------------------------------------------------------
+-- Add role to user's claims (JWT)
+------------------------------------------------------
 create or replace function public.custom_access_token_hook(event jsonb)
 returns jsonb
 language plpgsql
@@ -10,7 +11,10 @@ as $$
     user_role public.app_role;
   begin
     -- Fetch the user role in the user_roles table
-    select role into user_role from public.user_roles where user_id = (event->>'user_id')::uuid;
+    select r.role into user_role
+    from public.user_roles ur
+    join public.roles r on ur.role_id = r.id
+    where ur.user_id = (event->>'user_id')::uuid;
 
     claims := event->'claims';
 
@@ -39,10 +43,20 @@ revoke execute
   on function public.custom_access_token_hook
   from authenticated, anon, public;
 
+-- Grant permissions for user_roles table
 grant all
   on table public.user_roles
 to supabase_auth_admin;
 
 revoke all
   on table public.user_roles
+  from authenticated, anon, public;
+
+-- Grant permissions for roles table
+grant all
+  on table public.roles
+  to supabase_auth_admin;
+
+revoke all
+  on table public.roles
   from authenticated, anon, public;
