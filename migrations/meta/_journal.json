@@ -22,6 +22,13 @@
 			"when": 1757844640210,
 			"tag": "0002_auth_triggers",
 			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1757936618160,
+			"tag": "0003_married_satana",
+			"breakpoints": true
 		}
 	]
 }

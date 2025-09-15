@@ -8,6 +8,7 @@ import {
 	role_permissions
 } from './schemas/permissions';
 import { roles, user_roles } from './schemas/roles';
+import { services } from './schemas/services';
 
 async function seedSupabaseUsers() {
 	const supabase = createBrowserClient(
@@ -17,10 +18,13 @@ async function seedSupabaseUsers() {
 
 	const { data: usersData } = await supabase.auth.admin.listUsers();
 
-	const adminUser = { email: 'test@test.com', password: 'testtest' };
+	const TEST_USER = {
+		email: 'test@test.com',
+		password: 'testtest'
+	};
 
 	const foundUser = usersData.users.find(
-		({ email }) => email === adminUser.email
+		({ email }) => email === TEST_USER.email
 	);
 
 	if (foundUser) {
@@ -35,8 +39,7 @@ async function seedSupabaseUsers() {
 
 	const { error, data: adminUserData } =
 		await supabase.auth.admin.createUser({
-			email: adminUser.email,
-			password: adminUser.password,
+			...TEST_USER,
 			email_confirm: true
 		});
 
@@ -51,26 +54,46 @@ async function seedSupabaseUsers() {
 			{ role: 'developer' },
 			{ role: 'buyer' }
 		])
-		.returning();
+		.returning()
+		.onConflictDoNothing();
 
 	const adminRole = rolesData.find(({ role }) => role === 'admin')!;
 
-	await db.insert(user_roles).values({
-		user_id: adminUserData.user.id,
-		role_id: adminRole.id
-	});
+	await db
+		.insert(user_roles)
+		.values({
+			user_id: adminUserData.user.id,
+			role_id: adminRole.id
+		})
+		.onConflictDoNothing();
 
 	const adminPermissions = await db
 		.insert(permissions)
 		.values(createAdminPermissions())
-		.returning();
+		.returning()
+		.onConflictDoNothing();
 
-	await db.insert(role_permissions).values(
-		adminPermissions.map(({ id }) => ({
-			role_id: adminRole.id,
-			permission_id: id
-		}))
-	);
+	await db
+		.insert(role_permissions)
+		.values(
+			adminPermissions.map(({ id }) => ({
+				role_id: adminRole.id,
+				permission_id: id
+			}))
+		)
+		.onConflictDoNothing();
+
+	await db
+		.insert(services)
+		.values([
+			{ category: 'tracker', name: 'keitaro' },
+			{ category: 'domain', name: 'namesilo' },
+			{ category: 'domain', name: 'internet_bs' },
+			{ category: 'domain', name: 'dynodot' },
+			{ category: 'storage', name: 'dropbox' },
+			{ category: 'vps', name: 'digital_ocean' }
+		])
+		.onConflictDoNothing();
 }
 
 function createAdminPermissions() {
