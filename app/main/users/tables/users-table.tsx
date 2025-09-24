@@ -3,7 +3,7 @@
 import { RolesSelect } from '../../../lib/drizzle/schemas/roles';
 import { createColumns } from './columns';
 import { DataTable } from './data-table';
-import { CreateUser } from '../forms/invite-user';
+import { InviteUser } from '../forms/invite-user';
 import { type UsersData } from '../page';
 
 interface Props {
@@ -18,7 +18,7 @@ export function UsersTable({ roles, data }: Props) {
 		<div className='space-y-4'>
 			{/* Actions */}
 			<div>
-				<CreateUser roles={roles} />
+				<InviteUser roles={roles} />
 			</div>
 
 			<DataTable columns={columns} data={data} />

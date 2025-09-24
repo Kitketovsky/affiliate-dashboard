@@ -2,7 +2,6 @@
 
 import { db } from '../../../lib/drizzle';
 import {
-	Role,
 	user_roles,
 	UserRolesSelect
 } from '../../../lib/drizzle/schemas/roles';

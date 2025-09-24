@@ -31,16 +31,16 @@ import z from 'zod';
 import { Input } from '../../../../components/ui/input';
 import {
 	RolesSelect,
-	zRoles
+	zUserRolesInsert
 } from '../../../lib/drizzle/schemas/roles';
 import { inviteUser } from '../actions/invite-user';
 
 export const CreateUserSchema = z.object({
 	email: z.email(),
-	role_id: zRoles.shape.id
+	role_id: zUserRolesInsert.shape.role_id
 });
 
-export function CreateUser({ roles }: { roles: RolesSelect[] }) {
+export function InviteUser({ roles }: { roles: RolesSelect[] }) {
 	const [open, setOpen] = useState(false);
 
 	const [loading, setLoading] = useState(false);

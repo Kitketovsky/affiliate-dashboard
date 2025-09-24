@@ -4,9 +4,8 @@ import { env } from './../../../envalid';
 import { db } from '../drizzle';
 import { sql, eq } from 'drizzle-orm';
 import {
-	PermissionAction,
-	PermissionResource,
 	permissions as permissions_table,
+	PermissionsSelect,
 	role_permissions
 } from '../drizzle/schemas/permissions';
 import { user_roles, roles } from '../drizzle/schemas/roles';
@@ -41,8 +40,8 @@ export async function createClient(isAdmin = false) {
 }
 
 export async function hasAuthority(
-	resource: PermissionResource,
-	action: PermissionAction
+	resource: PermissionsSelect['resource'],
+	action: PermissionsSelect['action']
 ) {
 	const supabase = await createClient();
 
@@ -56,8 +55,8 @@ export async function hasAuthority(
 		.select({
 			permissions: sql<
 				Array<{
-					action: PermissionAction;
-					resource: PermissionResource;
+					action: PermissionsSelect['action'];
+					resource: PermissionsSelect['resource'];
 				}>
 			>`
       coalesce(

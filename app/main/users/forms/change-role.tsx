@@ -30,7 +30,8 @@ import { useState } from 'react';
 import {
 	RolesSelect,
 	UserRolesSelect,
-	zRoles
+	zUserRolesInsert,
+	zUserRolesUpdate
 } from '../../../lib/drizzle/schemas/roles';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
@@ -44,8 +45,6 @@ interface Props {
 	roles: RolesSelect[];
 	userRole: UsersData[number]['role'];
 }
-
-export const ChangeRoleSchema = zRoles.pick({ id: true });
 
 export function ChangeRole({
 	userId,
@@ -61,7 +60,7 @@ export function ChangeRole({
 	async function onSubmit({
 		id
 	}: {
-		id: UserRolesSelect['role_id'];
+		id: z.infer<typeof zUserRolesUpdate>['id'];
 	}) {
 		try {
 			setError(null);
@@ -77,10 +76,10 @@ export function ChangeRole({
 		}
 	}
 
-	const form = useForm<z.infer<typeof ChangeRoleSchema>>({
-		resolver: zodResolver(ChangeRoleSchema),
+	const form = useForm<z.infer<typeof zUserRolesUpdate>>({
+		resolver: zodResolver(zUserRolesUpdate),
 		defaultValues: {
-			id: roles.find(({ id }) => id !== userRole?.id)?.id
+			id: roles.find(({ id }) => id !== userRole?.id)!.id!
 		}
 	});
 
