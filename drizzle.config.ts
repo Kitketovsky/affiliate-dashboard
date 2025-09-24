@@ -4,7 +4,7 @@ import { env } from './envalid';
 
 export default defineConfig({
 	out: './migrations',
-	schema: './app/lib/drizzle/schemas',
+	schema: ['app/lib/drizzle/schemas'],
 	dialect: 'postgresql',
 	dbCredentials: {
 		url: env.SUPABASE_DATABASE_URL

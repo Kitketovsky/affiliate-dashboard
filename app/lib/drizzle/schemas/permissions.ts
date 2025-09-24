@@ -1,11 +1,15 @@
 import { pgEnum, pgTable, unique, uuid } from 'drizzle-orm/pg-core';
 import { roles } from './roles';
-import { createSelectSchema } from 'drizzle-zod';
+import {
+	createInsertSchema,
+	createSelectSchema,
+	createUpdateSchema
+} from 'drizzle-zod';
 import z from 'zod';
 
 export const permissionsResourceEnum = pgEnum(
 	'permissions_resource',
-	['users', 'roles', 'campaigns', 'queues']
+	['users', 'roles', 'campaigns', 'queues', 'settings']
 );
 
 export const permissionsActionsEnum = pgEnum('permissions_action', [
@@ -39,18 +43,32 @@ export const role_permissions = pgTable(
 	(t) => [unique().on(t.role_id, t.permission_id)]
 );
 
-export const zPermissions = createSelectSchema(permissions);
-export const zRolesEnum = createSelectSchema(role_permissions);
+export const zPermissionsSelect = createSelectSchema(permissions);
+export const zPermissionsInsert = createInsertSchema(permissions);
+export const zPermissionsUpdate = createUpdateSchema(permissions)
+	.omit({ id: true })
+	.extend({ id: z.string() });
 
-export type Permission = z.infer<typeof zPermissions>;
-export type Role = z.infer<typeof zRolesEnum>;
+export type PermissionsSelect = z.infer<typeof zPermissionsSelect>;
+export type PermissionsInsert = z.infer<typeof zPermissionsInsert>;
+export type PermissionsUpdate = z.infer<typeof zPermissionsUpdate>;
 
-export const zPermissionsAction = createSelectSchema(
-	permissionsActionsEnum
-);
-export const zPermissionsResource = createSelectSchema(
-	permissionsResourceEnum
-);
+export const zRolePermissionsSelect =
+	createSelectSchema(role_permissions);
+export const zRolePermissionsInsert =
+	createInsertSchema(role_permissions);
+export const zRolePermissionsUpdate = createUpdateSchema(
+	role_permissions
+)
+	.omit({ id: true })
+	.extend({ id: z.string() });
 
-export type PermissionAction = z.infer<typeof zPermissionsAction>;
-export type PermissionResource = z.infer<typeof zPermissionsResource>;
+export type RolePermissionsSelect = z.infer<
+	typeof zRolePermissionsSelect
+>;
+export type RolePermissionsInsert = z.infer<
+	typeof zRolePermissionsInsert
+>;
+export type RolePermissionsUpdate = z.infer<
+	typeof zRolePermissionsUpdate
+>;

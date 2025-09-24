@@ -1,5 +1,9 @@
 import { pgTable, uuid, pgEnum } from 'drizzle-orm/pg-core';
-import { createSelectSchema } from 'drizzle-zod';
+import {
+	createInsertSchema,
+	createSelectSchema,
+	createUpdateSchema
+} from 'drizzle-zod';
 import z from 'zod';
 import { users } from './users';
 
@@ -24,10 +28,22 @@ export const user_roles = pgTable('user_roles', {
 		.notNull()
 });
 
-export const zUserRoles = createSelectSchema(user_roles);
-export const zRolesEnum = createSelectSchema(appRolesEnum);
-export const zRoles = createSelectSchema(roles);
+export const zRolesSelect = createSelectSchema(roles);
+export const zRolesInsert = createInsertSchema(roles)
+	.omit({ id: true })
+	.extend({ id: z.string() });
+export const zRolesUpdate = createUpdateSchema(roles);
 
-export type UserRolesSelect = z.infer<typeof zUserRoles>;
-export type RolesSelect = z.infer<typeof zRoles>;
-export type Role = z.infer<typeof zRolesEnum>;
+export type RolesSelect = z.infer<typeof zRolesSelect>;
+export type RolesInsert = z.infer<typeof zRolesInsert>;
+export type RolesUpdate = z.infer<typeof zRolesUpdate>;
+
+export const zUserRolesInsert = createInsertSchema(user_roles);
+export const zUserRolesUpdate = createUpdateSchema(user_roles)
+	.omit({ id: true })
+	.extend({ id: z.string() });
+export const zUserRolesSelect = createSelectSchema(user_roles);
+
+export type UserRolesSelect = z.infer<typeof zUserRolesSelect>;
+export type UserRolesInsert = z.infer<typeof zUserRolesInsert>;
+export type UserRolesUpdate = z.infer<typeof zUserRolesUpdate>;

@@ -1,5 +1,5 @@
 {
-	"id": "51b9c037-877d-439e-9dc0-700cb1615268",
+	"id": "c19d5d8b-304b-44e4-90c3-bd428df85a7a",
 	"prevId": "d9e4abbf-7506-4293-9840-1390ccc52c27",
 	"version": "7",
 	"dialect": "postgresql",
@@ -112,9 +112,9 @@
 					"notNull": true,
 					"default": "gen_random_uuid()"
 				},
-				"api_key": {
-					"name": "api_key",
-					"type": "text",
+				"api_key_id": {
+					"name": "api_key_id",
+					"type": "uuid",
 					"primaryKey": false,
 					"notNull": true
 				},
@@ -133,6 +133,16 @@
 			},
 			"indexes": {},
 			"foreignKeys": {
+				"providers_api_key_id_secrets_id_fk": {
+					"name": "providers_api_key_id_secrets_id_fk",
+					"tableFrom": "providers",
+					"tableTo": "secrets",
+					"schemaTo": "vault",
+					"columnsFrom": ["api_key_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
 				"providers_service_id_services_id_fk": {
 					"name": "providers_service_id_services_id_fk",
 					"tableFrom": "providers",
@@ -325,7 +335,7 @@
 		"public.permissions_resource": {
 			"name": "permissions_resource",
 			"schema": "public",
-			"values": ["users", "roles", "campaigns", "queues"]
+			"values": ["users", "roles", "campaigns", "queues", "settings"]
 		},
 		"public.app_role": {
 			"name": "app_role",

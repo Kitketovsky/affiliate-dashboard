@@ -1,35 +1,32 @@
-import {
-	customType,
-	pgTable,
-	uuid,
-	varchar
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 import { services } from './services';
-import { privateDecrypt, privateEncrypt } from 'node:crypto';
-
-const encryptedText = customType<{ data: string }>({
-	dataType() {
-		return 'text';
-	},
-	fromDriver(value: unknown) {
-		return privateDecrypt(
-			Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'),
-			Buffer.from(value as string, 'hex')
-		).toString('utf8');
-	},
-	toDriver(value: string) {
-		return privateEncrypt(
-			Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'),
-			Buffer.from(value, 'utf8')
-		).toString('hex');
-	}
-});
+import {
+	createInsertSchema,
+	createSelectSchema,
+	createUpdateSchema
+} from 'drizzle-zod';
+import z from 'zod';
+import { secrets } from '../ignored_schemas/vault';
 
 export const providers = pgTable('providers', {
 	id: uuid().primaryKey().defaultRandom(),
-	api_key: encryptedText().notNull(),
+	api_key_id: uuid()
+		.notNull()
+		.references(() => secrets.id, { onDelete: 'cascade' }),
 	label: varchar().notNull(),
 	service_id: uuid()
 		.notNull()
 		.references(() => services.id, { onDelete: 'cascade' })
 });
+
+export const zProvidersSelect = createSelectSchema(providers);
+export const zProvidersInsert = createInsertSchema(providers)
+	.omit({ api_key_id: true })
+	.extend({ api_key: z.string() });
+export const zProvidersUpdate = createUpdateSchema(providers)
+	.omit({ api_key_id: true })
+	.extend({ api_key: z.string() });
+
+export type ProvidersSelect = z.infer<typeof zProvidersSelect>;
+export type ProvidersInsert = z.infer<typeof zProvidersInsert>;
+export type ProvidersUpdate = z.infer<typeof zProvidersUpdate>;

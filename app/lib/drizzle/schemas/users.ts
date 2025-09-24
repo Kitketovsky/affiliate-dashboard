@@ -1,6 +1,10 @@
 import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 import { authUsers } from 'drizzle-orm/supabase';
-import { createSelectSchema } from 'drizzle-zod';
+import {
+	createSelectSchema,
+	createInsertSchema,
+	createUpdateSchema
+} from 'drizzle-zod';
 import z from 'zod';
 
 export const users = pgTable('users', {
@@ -10,6 +14,12 @@ export const users = pgTable('users', {
 	email: varchar({ length: 255 }).unique().notNull()
 });
 
-const zUsers = createSelectSchema(users);
+export const zUsersSelect = createSelectSchema(users);
+export const zUsersInsert = createInsertSchema(users);
+export const zUsersUpdate = createUpdateSchema(users)
+	.omit({ id: true })
+	.extend({ id: z.string() });
 
-export type UsersSelect = z.infer<typeof zUsers>;
+export type UsersSelect = z.infer<typeof zUsersSelect>;
+export type UsersInsert = z.infer<typeof zUsersInsert>;
+export type UsersUpdate = z.infer<typeof zUsersUpdate>;
