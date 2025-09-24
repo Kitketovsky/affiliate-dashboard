@@ -2,17 +2,14 @@ import Link from 'next/link';
 import { logout } from '../app/lib/actions/auth/logout';
 import { Button } from './ui/button';
 import { HTMLAttributeAnchorTarget } from 'react';
-import {
-	PermissionAction,
-	PermissionResource
-} from '../app/lib/drizzle/schemas/permissions';
+import { PermissionsSelect } from '../app/lib/drizzle/schemas/permissions';
 
 type Links = Array<{
 	href: string;
 	label: string;
 	target?: HTMLAttributeAnchorTarget;
-	resource?: PermissionResource;
-	action?: PermissionAction;
+	resource?: PermissionsSelect['resource'];
+	action?: PermissionsSelect['action'];
 }>;
 
 const LINKS: Links = [
@@ -26,13 +23,20 @@ const LINKS: Links = [
 	{
 		href: '/main/campaigns',
 		label: 'Campaigns',
-		resource: 'campaigns'
+		resource: 'campaigns',
+		action: 'read'
 	},
 	{
 		href: '/api/bull',
 		label: 'Queues',
 		target: '_blank',
 		resource: 'queues',
+		action: 'read'
+	},
+	{
+		href: '/main/settings',
+		label: 'Settings',
+		resource: 'settings',
 		action: 'read'
 	}
 ];
